@@ -248,3 +248,10 @@ WHERE
 -- 删除行 
 DELETE FROM Customers
 WHERE cust_id = '1000000006';
+
+-- 增加列 
+ALTER TABLE Vendors
+ADD vend_phone CHAR(20);
+
+-- 删除表
+DROP TABLE CustCopy;

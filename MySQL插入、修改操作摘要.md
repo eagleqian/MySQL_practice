@@ -1,8 +1,8 @@
-# MySQL插入、修改操作摘要
+# MySQL增、删、改、创、操作摘要
 
 ## 数据插入
 
-
+---
 
 ### 插入整行
 
@@ -209,7 +209,7 @@ SELECT * FROM Customers;
 
 ---
 
-## 更新或删除表格
+## 更新表格
 
 使用UPDATE 语句非常容易，甚至可以说太容易了。基本的UPDATE 语句由三部分组成，分别是：
 
@@ -244,7 +244,9 @@ WHERE cust_id = '1000000005';
 
 **NOTE**
 
-UPDATE 语句以WHERE 子句结束，**它告诉DBMS 更新哪一行**。没有WHERE子句，DBMS 将会用这个电子邮件地址**更新**Customers 表中的**所有行**，这不是我们希望的!
+UPDATE 语句以WHERE 子句结束，**它告诉DBMS 更新哪一行**。没有WHERE子句，DBMS 将会用这个电子邮件地
+
+址**更新**Customers 表中的**所有行**，这不是我们希望的!
 
 ---
 
@@ -294,3 +296,140 @@ WHERE cust_id = '1000000006';
 
 
 
+---
+
+## 创建表
+
+```mysql
+-- 列出本摘要刚开始创建products 表的sql语句
+CREATE TABLE Products
+(
+    prod_id CHAR(10) NOT NULL,
+    vend_id CHAR(10) NOT NULL,
+    prod_name CHAR(254) NOT NULL,
+    prod_price DECIMAL(8,2) NOT NULL,
+    prod_desc VARCHAR(1000) NULL
+);
+```
+
+
+
+**NOTE:**
+
+NULL 值就是没有值或缺值。允许NULL 值的列也允许在插入行时不给出该列的值。
+
+**不允许NULL 值的列不接受没有列值的行**，换句话说，在插入或更新行时，该列必须有值。
+
+**只有不允许NULL值的列可作为主键**
+
+---
+
+**注意：理解NULL**
+不要把NULL 值与空字符串相混淆。**NULL 值是没有值，不是空字符串**。
+
+如果指定''（两个单引号，**其间没有字符**），这在NOT NULL 列中是允许的。
+
+**空字符串是一个有效的值，它不是无值**。NULL 值用关键字NULL而不是空字符串指定。
+
+---
+
+
+
+### 指定默认值
+
+
+
+```mysql
+/***
+SQL 允许指定默认值，在插入行时如果不给出值，DBMS 将自动采用默认值。默认值在CREATE TABLE 语句的列定义中用关键字DEFAULT 指定。
+***/
+-- OrderItems 创建脚本
+CREATE TABLE OrderItems
+(
+    order_num INTEGER NOT NULL,
+    order_item INTEGER NOT NULL,
+    prod_id CHAR(10) NOT NULL,
+    quantity INTEGER NOT NULL DEFAULT 1, -- 注意此处的 DEFAUT 1
+    item_price DECIMAL(8,2) NOT NULL
+);
+
+/***
+在这个例子中，这一列的描述增加了DEFAULT 1，指示DBMS，如果不给出数量则使用数量1
+***/
+
+```
+
+
+
+默认值经常用于日期或时间戳列。例如，通过指定引用系统日期的函数或变量， 将系统日期用作默认日期。
+
+MySQL 用户指定**DEFAULT CURRENT_DATE()**
+
+---
+
+
+
+**提示**：
+
+**使用DEFAULT 而不是NULL 值**
+
+许多数据库开发人员喜欢使用DEFAULT 值而不是NULL 列，对于用于计算或数据分组的列更是如此。
+
+## 更新表
+
+理想情况下，不要在表中包含数据时对其进行更新。
+
+应该在表的设计过程中充分考虑未来可能的需求，避免今后对表的结构做大改动。
+
+1. 所有的DBMS 都允许给现有的表增加列，不过对所增加列的数据类型（以及NULL 和DEFAULT 的使用）有所限制。
+2. 许多DBMS 不允许删除或更改表中的列。
+3. 多数DBMS 允许重新命名表中的列。
+4. 许多DBMS 限制对已经填有数据的列进行更改，对未填有数据的列几乎没有限制。
+
+
+
+```mysql
+-- 给已有表增加列
+ALTER TABLE Vendors
+ADD vend_phone CHAR(20);
+```
+
+**注意**：小心使用ALTER TABLE
+使用ALTER TABLE 要极为小心，应该在进行改动前做完整的**备份**（表结构和数据的备份）。
+
+数据库表的**更改不能撤销**，如果增加了不需要的列，也许无法删除它们。
+
+类似地，如果删除了不应该删除的列，可能会**丢失该列中的所有数据**。
+
+---
+
+
+
+## 删除表
+
+```mysql
+-- 删除表（删除整个表而不是其内容）非常简单，使用DROP TABLE 语句即可：
+DROP TABLE CustCopy;
+```
+
+**提示**：使用关系规则防止意外删除许多DBMS 允许强制实施有关规则，防止删除与其他表相关联的表。
+
+在实施这些规则时，如果对某个表发布一条DROP TABLE 语句，**且该表是某个关系的组成部分**，
+
+则DBMS **将阻止**这条语句执行，直到该关系被删除为止。
+
+如果允许，应该启用这些选项，它能**防止意外删除**有用的表。
+
+---
+
+**小结**
+
+这一课介绍了几条新的SQL 语句。
+
+CREATE TABLE 用来创建新表，ALTER TABLE 用来更改表列（或其他诸如约束或索引等对象），
+
+而DROP TABLE用来完整地删除一个表。
+
+这些语句必须小心使用，并且应该在备份后使用。
+
+由于这些语句的语法在不同的DBMS 中有所不同，所以***更详细的信息请参阅相应的DBMS 文档***。
