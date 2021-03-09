@@ -101,3 +101,150 @@ WHERE
     cust_name = 'Fun4ALL'
 ORDER BY
 	cust_name,cust_contact;
+
+-- ---------------------------------------------------------------------------------
+-- 插入操作 
+INSERT INTO Customers
+VALUES('1000000006',
+		'Toy Land',
+        '123 Any Street',
+        'New York',
+        'NY',
+        '11111',
+        'USA',
+         NULL,
+         NULL);
+
+-- 更安全的插入方法 
+/***
+INSERT INTO Customers(cust_id,
+						cust_name,
+						cust_address,
+						cust_city,
+						cust_state,
+						cust_zip,
+						cust_country,
+						cust_contact,
+						cust_email)
+VALUES('1000000006',
+		'Toy Land',
+		'123 Any Street',
+		'New York',
+		'NY',
+		'11111',
+		'USA',
+		NULL,
+		NULL);
+***/
+
+-- 插入部分行
+INSERT INTO Customers(cust_id,
+cust_name,
+cust_address,
+cust_city,
+cust_state,
+cust_zip,
+cust_country)
+VALUES('1000000006',
+'Toy Land',
+'123 Any Street',
+'New York',
+'NY',
+'11111',
+'USA');
+
+-- 创建新客户表CustNew
+CREATE TABLE CustNew
+(
+  cust_id      char(10)  NOT NULL ,
+  cust_name    char(50)  NOT NULL ,
+  cust_address char(50)  NULL ,
+  cust_city    char(50)  NULL ,
+  cust_state   char(5)   NULL ,
+  cust_zip     char(10)  NULL ,
+  cust_country char(50)  NULL ,
+  cust_contact char(50)  NULL ,
+  cust_email   char(255) NULL 
+);
+
+ALTER TABLE CustNew ADD PRIMARY KEY (cust_id);
+
+-- 定义外键 
+# ALTER TABLE Orders ADD CONSTRAINT FK_Orders_Customers FOREIGN KEY (cust_id) REFERENCES Customers (cust_id);
+
+-- 插入新顾客表记录 
+INSERT INTO CustNew(cust_id, cust_name, cust_address, cust_city, cust_state, cust_zip, cust_country, cust_contact, cust_email)
+VALUES('1000000008', 'NanTong University', 'NanJing', 'JiangSu', 'MI', '66666', 'CHINA', 'Eagle Qian', 'eagleqian321@gmail.com');
+
+-- 插入查询结果
+INSERT INTO Customers(cust_id,
+						cust_contact,
+                        cust_email,
+                        cust_name,
+                        cust_address,
+                        cust_city,
+                        cust_state,
+                        cust_zip,
+                        cust_country)
+SELECT cust_id,
+		cust_contact,
+		cust_email,
+		cust_name,
+		cust_address,
+		cust_city,
+		cust_state,
+		cust_zip,
+		cust_country
+FROM	CustNew;
+
+
+-- 创建新表 
+-- 创建新客户表CustNew
+/***
+CREATE TABLE CustCopy
+(
+  cust_id      char(10)  NOT NULL ,
+  cust_name    char(50)  NOT NULL ,
+  cust_address char(50)  NULL ,
+  cust_city    char(50)  NULL ,
+  cust_state   char(5)   NULL ,
+  cust_zip     char(10)  NULL ,
+  cust_country char(50)  NULL ,
+  cust_contact char(50)  NULL ,
+  cust_email   char(255) NULL 
+);
+
+ALTER TABLE Custcopy ADD PRIMARY KEY (cust_id);
+***/
+
+-- 从一个表复制到另一个表
+CREATE TABLE CustCopy AS
+SELECT * FROM Customers;
+
+
+-- ----------------------------------------------------------------------------------
+-- 更新或删除数据 
+UPDATE Customers 
+SET 
+    cust_email = 'liuqian@163.com'
+WHERE
+    cust_id = '1000000005';
+
+
+UPDATE Customers 
+SET -- 更新多个列时，中间用逗号隔开 
+    cust_contact = 'Liu Roberts',
+    cust_email = 'happy@toyland.com'
+WHERE
+    cust_id = '1000000006';
+
+-- 删除某个列的值 
+UPDATE Customers 
+SET 
+    cust_email = NULL
+WHERE
+    cust_id = '1000000005';
+    
+-- 删除行 
+DELETE FROM Customers
+WHERE cust_id = '1000000006';
