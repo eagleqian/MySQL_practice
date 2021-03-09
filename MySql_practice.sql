@@ -86,3 +86,18 @@ WHERE
     C.cust_id = O.cust_id
         AND O.order_num = OI.order_num
         AND prod_id = 'RGAN01';
+
+SELECT 
+    cust_name, cust_contact, cust_email
+FROM
+    Customers
+WHERE
+    cust_state IN ('IN' , 'IL', 'MI') 
+UNION ALL SELECT 
+    cust_name, cust_contact, cust_email
+FROM
+    Customers
+WHERE
+    cust_name = 'Fun4ALL'
+ORDER BY
+	cust_name,cust_contact;
