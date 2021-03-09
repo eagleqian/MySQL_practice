@@ -1,4 +1,4 @@
-# MySQL简要操作手札
+# MySQL操作手札——查询篇
 
 ---
 
@@ -747,6 +747,15 @@ GROUP BY Customers.cust_id;
 多数情况下，组合相同表的两个查询所完成的工作与具有多个WHERE子句条件的一个查询所完成的工作相同。换句话说，任何具有多个WHERE 子句的SELECT 语句都可以作为一个组合查询，在下面可以看到这一点。
 
 ```mysql
+/***
+假如需要Illinois、Indiana 和Michigan 等美国几个州的所有顾客的报表，还想包括不管位于哪个州的所有的Fun4All。
+
+第一条SELECT 把Illinois、Indiana、Michigan 等州的缩写传递给IN 子句，检索出这些州的所有行。
+
+第二条SELECT 利用简单的相等测试找出所有Fun4All。
+***/
+
+
 -- 单词查询
 SELECT 
     cust_name, cust_contact, cust_email
@@ -756,7 +765,7 @@ WHERE
     cust_state IN ('IL' , 'IN', 'MI');
 -- 单词查询
 SELECT 
-    cust_name, cust_contact, cust_email
+    cust_name,bapug8[1/] cust_contact, cust_email
 FROM
     Customers
 WHERE
@@ -775,6 +784,14 @@ FROM
 WHERE
 	cust_name = 'Fun4ALL';
 
+-- 使用多条WHERE 子句而不是UNION 的相同查询
+SELECT 
+	cust_name, cust_contact, cust_email
+FROM 
+	Customers
+WHERE 
+	cust_state IN ('IL','IN','MI')
+	OR cust_name = 'Fun4All';-- 注意OR的表示
 ```
 
 **输出**
@@ -799,3 +816,109 @@ WHERE
 1. UNION 必须由**两条或两条以上的SELECT 语句组成**，语句之间用关键字UNION 分
 2. NION 中的每个查询必须包含**相同的列、表达式或聚集函数**（不过，各个列不需要以相同的次序列出）。
 3. 列**数据类型必须兼容**：类型不必完全相同，但必须是DBMS 可以隐含转换的类型
+
+
+
+---
+
+
+
+### 包含或取消重复的行
+
+UNION 从查询结果集中自动**去除了重复的行**；
+
+换句话说，它的行为与**一条SELECT 语句中使用多个WHERE 子句**条件一样。
+
+因为Indiana 州有一个Fun4All 单位，所以两条SELECT 语句都返回该行。
+
+使用UNION 时，**重复的行会被自动取消**。这是UNION 的默认行为，如果愿意也可以改变它。
+
+事实上，如果想返回**所有的匹配行，可使用UNION ALL** 而不是UNION。
+
+```mysql
+SELECT 
+    cust_name, cust_contact, cust_email
+FROM
+    Customers
+WHERE
+    cust_state IN ('IN' , 'IL', 'MI') 
+UNION ALL SELECT -- 包含所有的行
+    cust_name, cust_contact, cust_email
+FROM
+    Customers
+WHERE
+    cust_name = 'Fun4ALL';
+```
+
+**output**
+
+| cust_name     | cust_contact       | cust_email            |
+| ------------- | ------------------ | --------------------- |
+| Village Toys  | John Smith         | sales@villagetoys.com |
+| Fun4All       | Jim Jones          | jjones@fun4all.com    |
+| The Toy Store | Kim Howard         | NULL                  |
+| Fun4All       | Jim Jones          | jjones@fun4all.com    |
+| Fun4All       | Denise L. Stephens | dstephens@fun4all.com |
+
+---
+
+### 对组合查询的结果进行排序
+
+SELECT 语句的输出用ORDER BY 子句排序。在用UNION 组合查询时，
+
+**只能使用一条ORDER BY 子句**，它必须位于**最后一条SELECT 语句之后**。
+
+对于结果集，不存在用一种方式排序一部分，而又用另一种方式排序另一部分的情况，
+
+因此**不允许使用多条ORDER BY 子句**。
+
+
+
+```mysql
+SELECT 
+    cust_name, cust_contact, cust_email
+FROM
+    Customers
+WHERE
+    cust_state IN ('IN' , 'IL', 'MI') 
+UNION ALL SELECT 
+    cust_name, cust_contact, cust_email
+FROM
+    Customers
+WHERE
+    cust_name = 'Fun4ALL'
+ORDER BY
+	cust_name,cust_contact;
+-- 只允许有一条排序语句，且出现在最后一行
+```
+
+
+
+**output**
+
+| cust_name     | cust_contact       | cust_email            |
+| ------------- | ------------------ | --------------------- |
+| Fun4All       | Denise L. Stephens | dstephens@fun4all.com |
+| Fun4All       | Jim Jones          | jjones@fun4all.com    |
+| Fun4All       | Jim Jones          | jjones@fun4all.com    |
+| The Toy Store | Kim Howard         | NULL                  |
+| Village Toys  | John Smith         | sales@villagetoys.com |
+
+虽然ORDER BY 子句似乎**只是最后一条SELECT 语句的组成部分**，但实际上DBMS 将用它来排序**所有SELECT 语句**返回的所有结果。
+
+---
+
+
+
+**Conclusion:**
+
+利用UNION，可以把**多条查询的结果作为一条组合查询返回**，不管结果中有无重复。使用UNION 可极大地简化复杂的WHERE 子句,，简化从**多个表中**检索数据的工作。
+
+
+
+
+
+
+
+
+
